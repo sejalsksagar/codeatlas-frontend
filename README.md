@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CodeAtlas AI Frontend
 
-## Getting Started
+Frontend application for CodeAtlas AI - repository understanding and architecture visualization.
 
-First, run the development server:
+## 🎯 Impact
+
+> **Input:** GitHub repository URL  
+> **Output:** Tech stack + AI summary + Architecture diagram + Engineering recommendations  
+> **Time to Insight:** Under 60 seconds
+
+## Overview
+
+CodeAtlas AI helps developers understand unfamiliar GitHub repositories by generating intelligent summaries, visual architecture diagrams, and actionable engineering recommendations. Simply provide a GitHub repository URL and get comprehensive insights in seconds.
+
+## ✨ Features
+
+- **GitHub Repository Analysis Interface** - Seamless integration with GitHub repositories
+- **Technology Stack Visualization** - Automatically detect and display tech stack composition
+- **Architecture Diagram Rendering** - Interactive visual representation of codebase architecture
+- **Recommendation Dashboard** - AI-powered suggestions for improvements and best practices
+- **Responsive User Experience** - Optimized for all device sizes
+
+## 🛠 Technology Stack
+
+- **Next.js 14** - React framework for production
+- **React** - UI component library
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Flow** - Interactive diagram library
+
+**Language Composition:**
+- TypeScript: 96.3%
+- CSS: 2.7%
+- JavaScript: 1%
+
+## 🏗 Architecture
+
+```
+User
+  ↓
+Next.js Frontend
+  ↓
+FastAPI Backend
+  ↓
+GitHub API + GitHub Models (GPT-5)
+  ↓
+Analysis Results
+```
+
+## 🚀 Development
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+### Running Locally
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env.local` file in the root directory:
 
-## Learn More
+```env
+NEXT_PUBLIC_API_URL=<your-backend-api-url>
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🔗 Related Links
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Live Application:** [Frontend URL]
+- **Backend Repository:** [Backend GitHub URL]
+- **Backend API:** [Render URL]
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🤖 Microsoft AI Stack Integration
 
-## Deploy on Vercel
+- **GitHub Models** - Powered by GPT-5 for intelligent analysis
+- **GitHub REST API** - Repository data retrieval
+- **GitHub Actions** - Automated workflows
+- **GitHub Copilot** - AI-assisted development
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🗓 Future Improvements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Fully editable React Flow diagrams with drag-and-drop
+- Diagram export (PNG, SVG, PDF)
+- Repository chat assistant for interactive Q&A
+- Enhanced architecture visualization with custom themes
+- Code snippet analysis and explanation
+- Performance metrics and optimization suggestions
+
+## 📄 License
+
+MIT
+
+---
+
+**Built with ❤️ for developers who want to understand code faster**
