@@ -14,8 +14,12 @@ export default function HomePage() {
   async function handleAnalyze(url: string) {
     setIsLoading(true);
     setError('');
+    sessionStorage.removeItem('codeatlas:diagram');
+    sessionStorage.removeItem('codeatlas:suggestions');
     try {
+      console.log('starting analyze');
       const data: AnalyzeResponse = await analyzeRepo(url);
+      console.log('analyze success', data.repo);
       sessionStorage.setItem('codeatlas:analyze', JSON.stringify(data));
       sessionStorage.setItem('codeatlas:repo_url', url);
       router.push('/analyze');

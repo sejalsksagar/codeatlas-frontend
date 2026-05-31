@@ -28,17 +28,33 @@ export interface AnalyzeResponse {
   used_fallback: boolean;
 }
 
-export interface DiagramNode {
+export interface ApiDiagramNode {
   id: string;
   label: string;
-  type: string;
-  position: { x: number; y: number };
 }
 
-export interface DiagramEdge {
+export interface ApiDiagramEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+export interface FlowNode {
+  id: string;
+  data: {
+    label: string;
+  };
+  position: {
+    x: number;
+    y: number;
+  };
+}
+
+export interface FlowEdge {
   id: string;
   source: string;
   target: string;
+  label?: string;
 }
 
 export interface DiagramResponse {

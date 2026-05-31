@@ -16,6 +16,7 @@ import { ReactFlow,
   addEdge,
   useNodesState,
   useEdgesState,
+  MarkerType,
   type Node,
   type Edge,
   type NodeTypes,
@@ -26,8 +27,14 @@ import { ReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { DiagramNode, DiagramEdge } from '@/types';
+import type {
+  ApiDiagramNode,
+  ApiDiagramEdge,
+  FlowNode,
+  FlowEdge,
+} from '@/types';
 import { flowToMermaid } from '@/lib/mermaid-to-flow';
+import dagre from 'dagre';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Editable Node
@@ -183,41 +190,17 @@ function ToolbarButton({ onClick, title, children, variant = 'default', flash }:
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Prop → RF node/edge converters
-───────────────────────────────────────────────────────────────────────────── */
-function toRFNodes(
-  propNodes: DiagramNode[],
-  onLabelChange: (id: string, label: string) => void
-): Node[] {
-  return propNodes.map((n) => ({
-    id: n.id,
-    type: 'editableNode',
-    position: n.position,
-    data: { label: n.label, onLabelChange },
-  }));
-}
-
-function toRFEdges(propEdges: DiagramEdge[]): Edge[] {
-  return propEdges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    style: { stroke: '#3a3a4a', strokeWidth: 1.5 },
-    animated: false,
-  }));
-}
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Main Component
 ───────────────────────────────────────────────────────────────────────────── */
 interface DiagramCanvasProps {
-  nodes: DiagramNode[];
-  edges: DiagramEdge[];
-  onNodesChange?: (nodes: DiagramNode[]) => void;
+  nodes: FlowNode[];
+  edges: FlowEdge[];
+  //onNodesChange?: (nodes: FlowNode[]) => void;
 }
 
-export default function DiagramCanvas({ nodes: propNodes, edges: propEdges, onNodesChange }: DiagramCanvasProps) {
+export default function DiagramCanvas({ nodes: propNodes, edges: propEdges }: DiagramCanvasProps) {
   const [copied, setCopied] = useState(false);
   const [flashLayout, setFlashLayout] = useState(false);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -225,17 +208,57 @@ export default function DiagramCanvas({ nodes: propNodes, edges: propEdges, onNo
   // Label change handler — needs stable ref so node data doesn't go stale
   const onLabelChangeRef = useRef<(id: string, label: string) => void>(() => {});
 
-  const initialNodes = toRFNodes(propNodes, (...args) => onLabelChangeRef.current(...args));
-  const initialEdges = toRFEdges(propEdges);
+  const initialNodes: Node[] = propNodes.map((n) => ({
+    id: n.id,
+    type: 'editableNode',
+    position: n.position,
+    data: {
+      label: n.data.label,
+      onLabelChange: (id: string, label: string) =>
+        onLabelChangeRef.current(id, label),
+    },
+  }));
+  const initialEdges: Edge[] = propEdges.map((e) => ({
+    id: e.id,
+    source: e.source,
+    target: e.target,
+    style: {
+      stroke: '#3a3a4a',
+      strokeWidth: 1.5,
+    },
+  }));
 
   const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   // Re-init when props change (e.g. after API response loads)
   useEffect(() => {
-    setNodes(toRFNodes(propNodes, (...args) => onLabelChangeRef.current(...args)));
-    setEdges(toRFEdges(propEdges));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const rfNodes = propNodes.map((n) => ({
+      id: n.id,
+      type: 'editableNode',
+      position: n.position,
+      data: {
+        label: n.data.label,
+        onLabelChange: (...args: [string, string]) =>
+          onLabelChangeRef.current(...args),
+      },
+    }));
+
+    const rfEdges = propEdges.map((e) => ({
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      label: e.label,
+      style: {
+        stroke: '#3a3a4a',
+        strokeWidth: 1.5,
+      },
+    }));
+
+    const layouted = getLayoutedElements(rfNodes, rfEdges);
+
+    setNodes(layouted.nodes);
+    setEdges(layouted.edges);
   }, [propNodes, propEdges]);
 
   // Stable label change callback
@@ -250,17 +273,18 @@ export default function DiagramCanvas({ nodes: propNodes, edges: propEdges, onNo
   }, [setNodes]);
 
   // Surface changes upstream
-  useEffect(() => {
-    if (!onNodesChange) return;
-    const mapped: DiagramNode[] = nodes.map((n) => ({
-      id: n.id,
-      label: (n.data.label as string) ?? n.id,
-      type: n.type ?? 'editableNode',
-      position: n.position,
-    }));
-    onNodesChange(mapped);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes]);
+  // useEffect(() => {
+  //   if (!onNodesChange) return;
+  //   const mapped: FlowNode[] = nodes.map((n) => ({
+  //     id: n.id,
+  //     data: {
+  //       label: (n.data.label as string) ?? n.id,
+  //     },
+  //     position: n.position,
+  //   }));
+  //   onNodesChange(mapped);
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [nodes]);
 
   // New edge on connect
   const onConnect: OnConnect = useCallback(
@@ -271,30 +295,58 @@ export default function DiagramCanvas({ nodes: propNodes, edges: propEdges, onNo
     [setEdges]
   );
 
+  function getLayoutedElements(nodes: Node[], edges: Edge[]) {
+    const dagreGraph = new dagre.graphlib.Graph();
+
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+    dagreGraph.setGraph({
+      rankdir: 'TB',
+      ranksep: 180,
+      nodesep: 150,
+      edgesep: 80,
+    });
+
+    nodes.forEach((node) => {
+      dagreGraph.setNode(node.id, {
+        width: 220,
+        height: 80,
+      });
+    });
+
+    edges.forEach((edge) => {
+      dagreGraph.setEdge(edge.source, edge.target);
+    });
+
+    dagre.layout(dagreGraph);
+
+    const layoutedNodes = nodes.map((node) => {
+    const pos = dagreGraph.node(node.id);
+
+    return {
+      ...node,
+      position: {
+        x: pos.x - 90,
+        y: pos.y - 30,
+      },
+    };
+  });
+
+  return {
+    nodes: layoutedNodes,
+    edges,
+  };
+}
+
   /* ── Auto Layout ── */
   function handleAutoLayout() {
     setFlashLayout(true);
     setTimeout(() => setFlashLayout(false), 200);
 
-    const ROW_H = 120;
-    const CENTER_X = 300;
-    const COLUMN_THRESHOLD = 6;
-    const COL_X = [180, 480];
+    const layouted = getLayoutedElements(nodes, edges);
 
-    setNodes((nds) =>
-      nds.map((n, i) => {
-        const useColumns = nds.length > COLUMN_THRESHOLD;
-        let x: number, y: number;
-        if (useColumns) {
-          x = COL_X[i % 2];
-          y = Math.floor(i / 2) * ROW_H + 50;
-        } else {
-          x = CENTER_X;
-          y = i * ROW_H + 50;
-        }
-        return { ...n, position: { x, y } };
-      })
-    );
+    setNodes(layouted.nodes);
+    setEdges(layouted.edges);
   }
 
   /* ── Export Mermaid ── */
@@ -383,6 +435,9 @@ export default function DiagramCanvas({ nodes: propNodes, edges: propEdges, onNo
           maxZoom={2.5}
           defaultEdgeOptions={{
             style: { stroke: '#3a3a4a', strokeWidth: 1.5 },
+            markerEnd: {
+            type: MarkerType.ArrowClosed,
+  }
           }}
           proOptions={{ hideAttribution: true }}
         >
