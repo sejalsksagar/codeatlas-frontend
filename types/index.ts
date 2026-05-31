@@ -14,13 +14,18 @@ export interface Module {
 }
 
 export interface AnalyzeResponse {
-  repo_name: string;
+  status: string;
+  repo: string;
+  branch: string;
+
   stack: RepoStack;
   summary: string;
+
   modules: Module[];
   entry_points: string[];
   request_flow: string;
-  ai_used: boolean;
+
+  used_fallback: boolean;
 }
 
 export interface DiagramNode {
@@ -37,10 +42,14 @@ export interface DiagramEdge {
 }
 
 export interface DiagramResponse {
+  status: string;
+  repo: string;
+
   mermaid_source: string;
-  nodes: DiagramNode[];
-  edges: DiagramEdge[];
-  ai_used: boolean;
+  nodes: any[];
+  edges: any[];
+
+  used_fallback: boolean;
 }
 
 export interface Suggestion {
@@ -52,6 +61,10 @@ export interface Suggestion {
 }
 
 export interface SuggestionsResponse {
+  status: string;
+  repo: string;
+
   suggestions: Suggestion[];
-  ai_used: boolean;
+
+  used_fallback: boolean;
 }

@@ -8,7 +8,7 @@ import {
   type KeyboardEvent,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
-import ReactFlow, {
+import { ReactFlow,
   Background,
   BackgroundVariant,
   Controls,

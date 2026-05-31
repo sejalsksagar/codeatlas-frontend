@@ -216,9 +216,9 @@ export default function AnalyzePage() {
       {/* Sticky header */}
       <header className="border-b border-[#141414] bg-[#0a0a0a]/90 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
-          <Breadcrumb repoName={data.repo_name} />
+          <Breadcrumb repoName={data.repo} />
           <div className="flex items-center gap-3">
-            <AiBadge aiUsed={data.ai_used} demoMode={demoMode} />
+            <AiBadge aiUsed={!data.used_fallback} demoMode={demoMode} />
             <button
               onClick={() => router.push('/')}
               className="text-xs font-mono text-[#2a2a2a] hover:text-[#00ff88] transition-colors duration-150"

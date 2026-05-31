@@ -214,13 +214,15 @@ export function getMockAnalyze(repoUrl: string): AnalyzeResponse {
   const profile = PROFILES[key] ?? buildGenericProfile(owner, repo);
 
   return {
-    repo_name: key,
+    status: 'success',
+    repo: key,
+    branch: 'main',
     stack: profile.stack,
     summary: profile.summary,
     modules: profile.modules,
     entry_points: profile.entry_points,
     request_flow: profile.request_flow,
-    ai_used: false,
+    used_fallback: true,
   };
 }
 
@@ -266,12 +268,24 @@ export function getMockDiagram(repoUrl: string): DiagramResponse {
     target: e.target,
   }));
 
-  return { mermaid_source: mermaid, nodes, edges, ai_used: false };
+  return {
+    status: 'success',
+    repo: key,
+    mermaid_source: mermaid,
+    nodes,
+    edges,
+    used_fallback: true,
+  };
 }
 
 export function getMockSuggestions(repoUrl: string): SuggestionsResponse {
   const { owner, repo } = parseOwnerRepo(repoUrl);
   const key = `${owner}/${repo}`;
   const profile = PROFILES[key] ?? buildGenericProfile(owner, repo);
-  return { suggestions: profile.suggestions, ai_used: false };
+  return {
+    status: 'success',
+    repo: key,
+    suggestions: profile.suggestions,
+    used_fallback: true,
+  };
 }

@@ -62,7 +62,7 @@ function isNetworkError(err: unknown): boolean {
 
 export async function analyzeRepo(repoUrl: string): Promise<AnalyzeResponse> {
   try {
-    const data = await fetchJSON<AnalyzeResponse>('/analyze', { repo_url: repoUrl, branch: 'main' });
+    const data = await fetchJSON<AnalyzeResponse>('/analyze', { repo_url: repoUrl, branch: 'HEAD' });
     setDemoMode(false);
     return data;
   } catch (err) {
