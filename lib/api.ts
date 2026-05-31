@@ -25,7 +25,7 @@ async function fetchJSON<T>(path: string, body: unknown): Promise<T> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
     // Short timeout so demo mode kicks in quickly rather than hanging
-    signal: AbortSignal.timeout(8000),
+    signal: AbortSignal.timeout(30000),
   });
 
   if (!res.ok) {
@@ -62,11 +62,13 @@ function isNetworkError(err: unknown): boolean {
 
 export async function analyzeRepo(repoUrl: string): Promise<AnalyzeResponse> {
   try {
-    const data = await fetchJSON<AnalyzeResponse>('/analyze', { repo_url: repoUrl, branch: 'main' });
+    console.log('calling backend');
+    const data = await fetchJSON<AnalyzeResponse>('/analyze', { repo_url: repoUrl, branch: 'HEAD' });
     setDemoMode(false);
     return data;
   } catch (err) {
     if (isNetworkError(err)) {
+      console.log(err);
       setDemoMode(true);
       // Simulate a brief "thinking" delay so the loading spinner is visible
       await new Promise((r) => setTimeout(r, 900));

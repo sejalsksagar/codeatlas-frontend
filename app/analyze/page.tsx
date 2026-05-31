@@ -3,7 +3,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import type { AnalyzeResponse, DiagramNode, DiagramEdge, Suggestion } from '@/types';
+import type {
+  AnalyzeResponse,
+  ApiDiagramNode,
+  ApiDiagramEdge,
+  FlowNode,
+  FlowEdge,
+  Suggestion
+} from '@/types';
 import { getDiagram, getSuggestions, isDemoMode } from '@/lib/api';
 import StackBadges from '@/components/repo/StackBadges';
 import SummaryPanel from '@/components/repo/SummaryPanel';
@@ -141,11 +148,38 @@ export default function AnalyzePage() {
   const [data,          setData]          = useState<AnalyzeResponse | null>(null);
   const [activeTab,     setActiveTab]     = useState<Tab>('overview');
   const [demoMode,      setDemoMode]      = useState(false);
-  const [diagramNodes,  setDiagramNodes]  = useState<DiagramNode[]>([]);
-  const [diagramEdges,  setDiagramEdges]  = useState<DiagramEdge[]>([]);
+  const [diagramNodes, setDiagramNodes] = useState<FlowNode[]>([]);
+  const [diagramEdges, setDiagramEdges] = useState<FlowEdge[]>([]);
   const [suggestions,   setSuggestions]   = useState<Suggestion[]>([]);
   const [loadingTab,    setLoadingTab]    = useState<Tab | null>(null);
   const fetchedTabs = useRef<Set<Tab>>(new Set());
+
+  useEffect(() => {
+    fetchedTabs.current = new Set();
+  }, [data?.repo]);
+
+  function toReactFlowNodes(nodes: ApiDiagramNode[]): FlowNode[] {
+    return nodes.map((node, index) => ({
+      id: node.id,
+      data: {
+        label: node.label,
+      },
+      position: {
+        x: 0,
+        y: 0,
+      },
+      type: 'default',
+    }));
+  }
+
+  function toReactFlowEdges(edges: ApiDiagramEdge[]): FlowEdge[] {
+    return edges.map((edge) => ({
+      id: `e-${edge.from}-${edge.to}`,
+      source: edge.from,
+      target: edge.to,
+      label: edge.label ?? '',
+    }));
+  }
 
   // ── Initial load from sessionStorage ──────────────────────────────────────
   useEffect(() => {
@@ -175,16 +209,16 @@ export default function AnalyzePage() {
       if (cached) {
         try {
           const d = JSON.parse(cached);
-          setDiagramNodes(d.nodes ?? []);
-          setDiagramEdges(d.edges ?? []);
+          setDiagramNodes(toReactFlowNodes(d.nodes ?? []));
+          setDiagramEdges(toReactFlowEdges(d.edges ?? []));
           setLoadingTab(null);
           return;
         } catch { /* fall through */ }
       }
       getDiagram(repoUrl, data.stack, data.modules)
         .then((res) => {
-          setDiagramNodes(res.nodes);
-          setDiagramEdges(res.edges);
+          setDiagramNodes(toReactFlowNodes(res.nodes));
+          setDiagramEdges(toReactFlowEdges(res.edges));
           sessionStorage.setItem('codeatlas:diagram', JSON.stringify(res));
         })
         .catch(console.error)
@@ -216,9 +250,9 @@ export default function AnalyzePage() {
       {/* Sticky header */}
       <header className="border-b border-[#141414] bg-[#0a0a0a]/90 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
-          <Breadcrumb repoName={data.repo_name} />
+          <Breadcrumb repoName={data.repo} />
           <div className="flex items-center gap-3">
-            <AiBadge aiUsed={data.ai_used} demoMode={demoMode} />
+            <AiBadge aiUsed={!data.used_fallback} demoMode={demoMode} />
             <button
               onClick={() => router.push('/')}
               className="text-xs font-mono text-[#2a2a2a] hover:text-[#00ff88] transition-colors duration-150"
@@ -266,7 +300,7 @@ export default function AnalyzePage() {
               <DiagramCanvas
                 nodes={diagramNodes}
                 edges={diagramEdges}
-                onNodesChange={setDiagramNodes}
+                //onNodesChange={setDiagramNodes}
               />
             )}
           </div>

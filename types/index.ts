@@ -14,33 +14,58 @@ export interface Module {
 }
 
 export interface AnalyzeResponse {
-  repo_name: string;
+  status: string;
+  repo: string;
+  branch: string;
+
   stack: RepoStack;
   summary: string;
+
   modules: Module[];
   entry_points: string[];
   request_flow: string;
-  ai_used: boolean;
+
+  used_fallback: boolean;
 }
 
-export interface DiagramNode {
+export interface ApiDiagramNode {
   id: string;
   label: string;
-  type: string;
-  position: { x: number; y: number };
 }
 
-export interface DiagramEdge {
+export interface ApiDiagramEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+export interface FlowNode {
+  id: string;
+  data: {
+    label: string;
+  };
+  position: {
+    x: number;
+    y: number;
+  };
+}
+
+export interface FlowEdge {
   id: string;
   source: string;
   target: string;
+  label?: string;
 }
 
 export interface DiagramResponse {
+  status: string;
+  repo: string;
+
   mermaid_source: string;
-  nodes: DiagramNode[];
-  edges: DiagramEdge[];
-  ai_used: boolean;
+  nodes: any[];
+  edges: any[];
+
+  used_fallback: boolean;
 }
 
 export interface Suggestion {
@@ -52,6 +77,10 @@ export interface Suggestion {
 }
 
 export interface SuggestionsResponse {
+  status: string;
+  repo: string;
+
   suggestions: Suggestion[];
-  ai_used: boolean;
+
+  used_fallback: boolean;
 }
