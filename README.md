@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CodeAtlas AI Frontend
 
-## Getting Started
+Frontend application for CodeAtlas AI - repository understanding and architecture visualization.
 
-First, run the development server:
+## 🎯 Impact
+
+> **Input:** GitHub repository URL  
+> **Output:** Tech stack + AI summary + Architecture diagram + Engineering recommendations  
+> **Time to Insight:** Under 60 seconds
+
+## Overview
+
+CodeAtlas AI helps developers understand unfamiliar GitHub repositories by generating intelligent summaries, visual architecture diagrams, and actionable engineering recommendations. Simply provide a GitHub repository URL and get comprehensive insights in seconds.
+
+## ✨ Features
+
+- GitHub Repository Analysis Interface
+- Technology Stack Visualization
+- Architecture Diagram Rendering
+- Recommendation Dashboard
+- Responsive User Experience
+
+## 🛠 Technology Stack
+
+- Next.js 14
+- React
+- TypeScript
+- Tailwind CSS
+- React Flow
+
+## 🏗 Architecture
+
+User → Next.js Frontend → FastAPI Backend → GitHub API + GitHub Models (GPT-5) → Analysis Results
+
+## 🚀 Development
+
+### Installation
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔐 Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_API_URL=<your-backend-api-url>
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔗 Related Links
 
-## Learn More
+- Frontend: https://codeatlas-frontend-khaki.vercel.app/
+- Backend API: https://codeatlas-backend-5hnr.onrender.com/docs
+- Backend Repo: https://github.com/sejalsksagar/codeatlas-backend
+- Frontend Repo: https://github.com/sejalsksagar/codeatlas-frontend
 
-To learn more about Next.js, take a look at the following resources:
+## 🤖 Microsoft AI Stack Integration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- GitHub Models (GPT-5)
+- GitHub REST API
+- GitHub Actions
+- GitHub Copilot
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🤖 AI Tools Disclosure
 
-## Deploy on Vercel
+- ChatGPT
+- Claude
+- Gemini
+- GitHub Copilot
+- GitHub Models GPT-5
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🗓 Future Improvements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Fully editable React Flow diagrams
+- Diagram export
+- Repository chat assistant
+- UML generation
+- Multi-repository analysis
+
+## 👥 Team CodeAtlas
+
+Built for Microsoft Build AI Hackathon 2026.
