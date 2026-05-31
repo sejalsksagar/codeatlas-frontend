@@ -71,6 +71,12 @@ npm run dev
 
 The application will be available at `http://localhost:3000`
 
+### Running Live on Vercel link below:
+
+~~~copy
+https://codeatlas-frontend-khaki.vercel.app/
+~~~
+
 ## 🔐 Environment Variables
 
 Create a `.env.local` file in the root directory:
